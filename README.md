@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AI Bureaucracy Agent
 ## Production-Grade Government Services Assistant — Version 4.4
 
@@ -812,3 +813,6 @@ Built with privacy-first principles inspired by:
 
 **Architecture Design:** Privacy-preserving AI for government services  
 **Tech Stack:** TypeScript, Preact, Vite, IndexedDB, Web Crypto API
+=======
+# OIST-ACM-AOC-Team.py
+>>>>>>> 0027d3bdd22ceb70a180b9bc276a34316d380a28
