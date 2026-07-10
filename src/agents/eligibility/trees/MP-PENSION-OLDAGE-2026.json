@@ -1,0 +1,55 @@
+{
+  "tree_id": "MP-PENSION-OLDAGE-2026",
+  "scheme": "Indira Gandhi National Old Age Pension",
+  "state": "Madhya Pradesh",
+  "version": "2026.1",
+  "root": {
+    "field": "domicileState",
+    "operator": "eq",
+    "value": "Madhya Pradesh",
+    "cite": "IGNOAPS Guidelines §2.1 — Madhya Pradesh domicile requirement",
+    "on_true": {
+      "field": "age",
+      "operator": "gte",
+      "value": 60,
+      "cite": "IGNOAPS Guidelines §3.1 — Minimum age 60 years",
+      "on_true": {
+        "field": "hasBPLCard",
+        "operator": "eq",
+        "value": true,
+        "cite": "IGNOAPS Guidelines §4.1(a) — BPL card holder requirement",
+        "on_true": {
+          "result": "ELIGIBLE",
+          "reason": "All criteria met: Age 60+, MP domicile, BPL card holder",
+          "cite": "IGNOAPS Guidelines §2.1, §3.1, §4.1(a)"
+        },
+        "on_false": {
+          "field": "familyAnnualIncome",
+          "operator": "lte",
+          "value": 48000,
+          "cite": "IGNOAPS Guidelines §4.1(b) — Income ceiling ₹48,000/year (alternative to BPL)",
+          "on_true": {
+            "result": "ELIGIBLE",
+            "reason": "All criteria met: Age 60+, MP domicile, income within ₹48,000 ceiling",
+            "cite": "IGNOAPS Guidelines §2.1, §3.1, §4.1(b)"
+          },
+          "on_false": {
+            "result": "INELIGIBLE",
+            "reason": "Neither BPL card holder nor income within ₹48,000/year ceiling",
+            "cite": "IGNOAPS Guidelines §4.1 — Economic eligibility requirement"
+          }
+        }
+      },
+      "on_false": {
+        "result": "INELIGIBLE",
+        "reason": "Applicant age is below 60 years minimum requirement",
+        "cite": "IGNOAPS Guidelines §3.1 — Minimum age 60 years"
+      }
+    },
+    "on_false": {
+      "result": "INELIGIBLE",
+      "reason": "Applicant domicile is not Madhya Pradesh",
+      "cite": "IGNOAPS Guidelines §2.1 — MP domicile requirement"
+    }
+  }
+}

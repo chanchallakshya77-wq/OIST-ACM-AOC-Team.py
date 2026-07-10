@@ -1,0 +1,131 @@
+{
+  "tree_id": "KA-PM-SC-ST-2025",
+  "scheme": "Post-Matric Scholarship for SC/ST Students",
+  "state": "Karnataka",
+  "version": "2025.1",
+  "root": {
+    "field": "domicileState",
+    "operator": "eq",
+    "value": "Karnataka",
+    "cite": "SSP Guidelines §2.1(a) — Domicile requirement",
+    "on_true": {
+      "field": "educationLevel",
+      "operator": "in",
+      "value": ["Class 11", "Class 12", "UG", "PG", "PhD", "Professional"],
+      "cite": "SSP Guidelines §3.2 — Post-Matric education levels",
+      "on_true": {
+        "field": "category",
+        "operator": "in",
+        "value": ["SC", "ST"],
+        "cite": "SSP Guidelines §2.1(b) — Eligible categories (SC/ST track)",
+        "on_true": {
+          "field": "familyAnnualIncome",
+          "operator": "lte",
+          "value": 250000,
+          "cite": "SSP Guidelines §4.1 — Income ceiling ₹2,50,000 for SC/ST",
+          "on_true": {
+            "field": "isRenewal",
+            "operator": "branch",
+            "branches": [
+              {
+                "condition": { "field": "isRenewal", "operator": "eq", "value": false },
+                "result": "ELIGIBLE",
+                "reason": "Fresh application — all criteria met",
+                "cite": "SSP Guidelines §5.1 — Fresh application eligibility"
+              },
+              {
+                "condition": { "field": "previousYearAttendancePct", "operator": "gte", "value": 75 },
+                "next": {
+                  "field": "previousYearPromoted",
+                  "operator": "eq",
+                  "value": true,
+                  "cite": "SSP Guidelines §5.4 — Must be promoted to next year",
+                  "on_true": {
+                    "result": "ELIGIBLE",
+                    "reason": "Renewal application — attendance and promotion criteria met",
+                    "cite": "SSP Guidelines §5.3, §5.4 — Renewal eligibility"
+                  },
+                  "on_false": {
+                    "result": "INELIGIBLE",
+                    "reason": "Not promoted to next year of study",
+                    "cite": "SSP Guidelines §5.4 — Promotion requirement for renewal"
+                  }
+                }
+              },
+              {
+                "condition": { "field": "previousYearAttendancePct", "operator": "lt", "value": 75 },
+                "result": "INELIGIBLE",
+                "reason": "Previous year attendance below 75% minimum for renewal",
+                "cite": "SSP Guidelines §5.3 — Minimum 75% attendance for renewal"
+              }
+            ]
+          },
+          "on_false": {
+            "result": "INELIGIBLE",
+            "reason": "Family annual income exceeds ₹2,50,000 ceiling for SC/ST category",
+            "cite": "SSP Guidelines §4.1 — Income ceiling"
+          }
+        },
+        "on_false": {
+          "field": "category",
+          "operator": "in",
+          "value": ["OBC"],
+          "cite": "SSP Guidelines §2.1(c) — OBC track",
+          "on_true": {
+            "field": "familyAnnualIncome",
+            "operator": "lte",
+            "value": 100000,
+            "cite": "SSP Guidelines §4.2 — Income ceiling ₹1,00,000 for OBC",
+            "on_true": {
+              "result": "ELIGIBLE",
+              "reason": "OBC category — income within ₹1,00,000 ceiling",
+              "cite": "SSP Guidelines §4.2"
+            },
+            "on_false": {
+              "result": "INELIGIBLE",
+              "reason": "Family annual income exceeds ₹1,00,000 ceiling for OBC category",
+              "cite": "SSP Guidelines §4.2 — OBC income ceiling"
+            }
+          },
+          "on_false": {
+            "field": "category",
+            "operator": "in",
+            "value": ["Minority"],
+            "cite": "SSP Guidelines §2.1(d) — Minority track",
+            "on_true": {
+              "field": "familyAnnualIncome",
+              "operator": "lte",
+              "value": 200000,
+              "cite": "SSP Guidelines §4.3 — Income ceiling ₹2,00,000 for Minorities",
+              "on_true": {
+                "result": "ELIGIBLE",
+                "reason": "Minority category — income within ₹2,00,000 ceiling",
+                "cite": "SSP Guidelines §4.3"
+              },
+              "on_false": {
+                "result": "INELIGIBLE",
+                "reason": "Family annual income exceeds ₹2,00,000 ceiling for Minority category",
+                "cite": "SSP Guidelines §4.3 — Minority income ceiling"
+              }
+            },
+            "on_false": {
+              "result": "INELIGIBLE",
+              "reason": "Category not covered under this scheme (General category not eligible)",
+              "cite": "SSP Guidelines §2.1 — Eligible categories"
+            }
+          }
+        }
+      },
+      "on_false": {
+        "result": "INELIGIBLE",
+        "reason": "Education level is not post-matric (must be Class 11 or above)",
+        "cite": "SSP Guidelines §3.2 — Post-Matric requirement"
+      }
+    },
+    "on_false": {
+      "result": "INELIGIBLE",
+      "reason": "Applicant domicile is not Karnataka",
+      "cite": "SSP Guidelines §2.1(a) — Karnataka domicile requirement"
+    }
+  }
+}

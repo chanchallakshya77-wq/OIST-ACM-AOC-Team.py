@@ -1,0 +1,69 @@
+{
+  "tree_id": "MP-PMKISAN-2026",
+  "scheme": "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
+  "state": "Madhya Pradesh",
+  "version": "2026.1",
+  "root": {
+    "field": "ownsAgriculturalLand",
+    "operator": "eq",
+    "value": true,
+    "cite": "PM-KISAN Guidelines §2.1 — Landholding farmer families",
+    "on_true": {
+      "field": "hasValidLandRecords",
+      "operator": "eq",
+      "value": true,
+      "cite": "PM-KISAN Guidelines §4.1 — Valid land records (Khasra/Khatauni) required",
+      "on_true": {
+        "field": "isAadhaarLinkedToBank",
+        "operator": "eq",
+        "value": true,
+        "cite": "PM-KISAN Guidelines §5.1 — Aadhaar-bank account linking mandatory",
+        "on_true": {
+          "field": "landOwnershipType",
+          "operator": "branch",
+          "branches": [
+            {
+              "condition": { "field": "isInstitutionalLandholder", "operator": "eq", "value": true },
+              "result": "INELIGIBLE",
+              "reason": "Institutional landholders are not eligible for PM-KISAN",
+              "cite": "PM-KISAN Guidelines §3.2 — Exclusion criteria"
+            },
+            {
+              "condition": { "field": "hasGovernmentJob", "operator": "eq", "value": true },
+              "result": "INELIGIBLE",
+              "reason": "Government employees are not eligible for PM-KISAN",
+              "cite": "PM-KISAN Guidelines §3.2(b) — Exclusion criteria"
+            },
+            {
+              "condition": { "field": "paysProfessionalTax", "operator": "eq", "value": true },
+              "result": "INELIGIBLE",
+              "reason": "Income tax payers/professional tax payers are not eligible",
+              "cite": "PM-KISAN Guidelines §3.2(c) — Exclusion criteria"
+            },
+            {
+              "condition": { "field": "ownsAgriculturalLand", "operator": "eq", "value": true },
+              "result": "ELIGIBLE",
+              "reason": "All criteria met: Landholding farmer, valid land records, Aadhaar linked, no exclusions apply",
+              "cite": "PM-KISAN Guidelines §2.1, §4.1, §5.1"
+            }
+          ]
+        },
+        "on_false": {
+          "result": "NEEDS_REVIEW",
+          "reason": "Aadhaar not linked to bank account — linking is mandatory before first installment",
+          "cite": "PM-KISAN Guidelines §5.1 — Aadhaar-bank linking requirement"
+        }
+      },
+      "on_false": {
+        "result": "INELIGIBLE",
+        "reason": "Valid land records (Khasra/Khatauni) not available",
+        "cite": "PM-KISAN Guidelines §4.1 — Land records requirement"
+      }
+    },
+    "on_false": {
+      "result": "INELIGIBLE",
+      "reason": "Applicant does not own agricultural land",
+      "cite": "PM-KISAN Guidelines §2.1 — Landholding farmer requirement"
+    }
+  }
+}

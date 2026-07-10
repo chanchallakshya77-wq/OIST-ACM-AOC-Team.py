@@ -1,0 +1,73 @@
+{
+  "schemeId": "MP-ALL-SERVICES-2026",
+  "schemeName": "Madhya Pradesh Government Services - All Schemes",
+  "state": "Madhya Pradesh",
+  "stateCode": "MP",
+  "portalName": "MP e-District & Service Portals",
+  "portalUrls": [
+    "https://mpedistrict.gov.in",
+    "https://scholarshipportal.mp.nic.in",
+    "https://mptransport.org",
+    "https://pmkisan.gov.in"
+  ],
+  "serviceCategories": [
+    "Education & Scholarships",
+    "Social Welfare & Pensions",
+    "Healthcare Services",
+    "Agriculture & Farmer Welfare",
+    "Certificates (Income, Caste, Domicile)",
+    "Licenses (Driving, Vehicle)",
+    "Housing & Utilities",
+    "Employment & Skill Development"
+  ],
+  "supportedStates": [
+    "Madhya Pradesh",
+    "Maharashtra", 
+    "Uttar Pradesh",
+    "Rajasthan",
+    "Gujarat"
+  ],
+  "categories": ["SC", "ST", "OBC", "General", "EWS"],
+  "educationLevels": [
+    "Class 1-10",
+    "Class 11",
+    "Class 12", 
+    "UG",
+    "PG",
+    "PhD",
+    "Professional",
+    "ITI/Diploma"
+  ],
+  "incomeCeilings": {
+    "scholarship_sc_st": 250000,
+    "scholarship_obc": 100000,
+    "pension": 0,
+    "housing": 300000,
+    "pmkisan": 200000
+  },
+  "version": "4.4.0",
+  "ledgerEncryptionParams": {
+    "algorithm": "AES-GCM",
+    "keyLength": 256,
+    "pbkdf2Iterations": 600000,
+    "saltLength": 16,
+    "ivLength": 12
+  },
+  "teeEndpoint": "https://tee.ai-bureaucracy.gov.in/api/v1",
+  "notificationEndpoint": "https://notifications.ai-bureaucracy.gov.in/api/v1",
+  "maxNotificationPayloadBytes": 51200,
+  "ledgerTTLHours": 72,
+  "trackerScanIntervalMs": 30000,
+  "bloomFilterConfig": {
+    "size": 256,
+    "hashCount": 7
+  },
+  "supportedLanguages": ["en", "hi"],
+  "statutoryTimelines": {
+    "certificate_issuance": { "maxDays": 7, "authority": "Tehsildar" },
+    "scholarship_verification": { "maxDays": 15, "authority": "District Welfare Officer" },
+    "pension_approval": { "maxDays": 30, "authority": "Social Welfare Department" },
+    "license_issuance": { "maxDays": 30, "authority": "RTO" },
+    "ration_card": { "maxDays": 15, "authority": "Food & Civil Supplies" }
+  }
+}

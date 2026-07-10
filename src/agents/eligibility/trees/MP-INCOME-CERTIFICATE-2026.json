@@ -1,0 +1,44 @@
+{
+  "tree_id": "MP-INCOME-CERTIFICATE-2026",
+  "scheme": "Income Certificate",
+  "state": "Madhya Pradesh",
+  "version": "2026.1",
+  "root": {
+    "field": "domicileState",
+    "operator": "eq",
+    "value": "Madhya Pradesh",
+    "cite": "MP eDistrict Guidelines §2.1 — MP domicile requirement for certificates",
+    "on_true": {
+      "field": "hasIncomeProof",
+      "operator": "eq",
+      "value": true,
+      "cite": "MP eDistrict Guidelines §5.2 — Income proof documents required",
+      "on_true": {
+        "field": "hasAddressProof",
+        "operator": "eq",
+        "value": true,
+        "cite": "MP eDistrict Guidelines §5.3 — Address proof required",
+        "on_true": {
+          "result": "ELIGIBLE",
+          "reason": "All criteria met: MP domicile, income proof, and address proof available",
+          "cite": "MP eDistrict Guidelines §2.1, §5.2, §5.3"
+        },
+        "on_false": {
+          "result": "NEEDS_REVIEW",
+          "reason": "Missing address proof documents — may need manual verification",
+          "cite": "MP eDistrict Guidelines §5.3"
+        }
+      },
+      "on_false": {
+        "result": "NEEDS_REVIEW",
+        "reason": "Missing income proof documents (salary slips, agricultural income records, etc.)",
+        "cite": "MP eDistrict Guidelines §5.2"
+      }
+    },
+    "on_false": {
+      "result": "INELIGIBLE",
+      "reason": "Applicant domicile is not Madhya Pradesh — apply to your home state",
+      "cite": "MP eDistrict Guidelines §2.1"
+    }
+  }
+}
