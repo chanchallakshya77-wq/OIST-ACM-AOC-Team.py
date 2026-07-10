@@ -1,10 +1,14 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import type { CitizenProfile } from '../../core/state-token';
 import { evaluateTree, loadScoringTree, getTreeIdForService, type EligibilityResult } from '../../agents/eligibility/engine';
 import { GOVERNMENT_SERVICES, type GovernmentService } from '../../mock-data/services';
 import { AuditTrail } from '../components/audit-trail.tsx';
 
-export function Eligibility() {
+interface EligibilityProps {
+  preSelectedService?: string | null;
+}
+
+export function Eligibility({ preSelectedService }: EligibilityProps) {
   const [selectedService, setSelectedService] = useState<string>('');
   const [service, setService] = useState<GovernmentService | null>(null);
   
@@ -18,6 +22,13 @@ export function Eligibility() {
 
   const [result, setResult] = useState<EligibilityResult | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // Auto-select service if provided via navigation
+  useEffect(() => {
+    if (preSelectedService && !selectedService) {
+      handleServiceSelect(preSelectedService);
+    }
+  }, [preSelectedService]);
 
   function handleServiceSelect(serviceId: string) {
     setSelectedService(serviceId);

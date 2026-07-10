@@ -1,7 +1,12 @@
 import { useState } from 'preact/hooks';
 import { getAllCategories, getServicesByCategory, type GovernmentService } from '../../mock-data/services';
+import { getTreeIdForService } from '../../agents/eligibility/engine';
 
-export function Services() {
+interface ServicesProps {
+  onCheckEligibility?: (serviceId: string) => void;
+}
+
+export function Services({ onCheckEligibility }: ServicesProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedService, setSelectedService] = useState<GovernmentService | null>(null);
   
@@ -131,7 +136,15 @@ export function Services() {
               </div>
 
               <div className="action-buttons">
-                <button className="btn-primary">Check Eligibility</button>
+                <button 
+                  className="btn-primary"
+                  onClick={() => onCheckEligibility?.(selectedService.id)}
+                  disabled={!getTreeIdForService(selectedService.id)}
+                >
+                  {getTreeIdForService(selectedService.id) 
+                    ? '✓ Check Eligibility Now' 
+                    : '⏳ Automated Check Coming Soon'}
+                </button>
                 <button className="btn-secondary">View Required Documents</button>
               </div>
             </div>

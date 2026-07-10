@@ -3,8 +3,12 @@ import type { Phase, HardwareCapabilityReport } from '../../core/state-token';
 import { PhaseIndicator } from '../components/phase-indicator';
 import { Eligibility } from './eligibility';
 import { Services } from './services';
-import { getAllCategories, getServicesByCategory } from '../../mock-data/services';
+import { getAllCategories, getServicesByCategory, getServiceById, GOVERNMENT_SERVICES } from '../../mock-data/services';
 import { MOCK_APPLICATIONS, getOverdueApplications } from '../../mock-data/applications';
+import { getDocumentRequirementsForService } from '../../mock-data/documents';
+import { ApplicationCard } from '../components/application-card';
+import { StatusTimeline } from '../components/status-timeline';
+import { DocumentRequirementCard } from '../components/document-requirement-card';
 
 interface DashboardProps {
   currentPhase: Phase;
@@ -15,6 +19,15 @@ type View = 'overview' | 'services' | 'eligibility' | 'documents' | 'tracker' | 
 
 export function Dashboard({ currentPhase, hwReport }: DashboardProps) {
   const [currentView, setCurrentView] = useState<View>('overview');
+  const [preSelectedServiceForEligibility, setPreSelectedServiceForEligibility] = useState<string | null>(null);
+
+  // Handle navigation to eligibility with pre-selected service
+  function navigateToEligibility(serviceId?: string) {
+    if (serviceId) {
+      setPreSelectedServiceForEligibility(serviceId);
+    }
+    setCurrentView('eligibility');
+  }
 
   return (
     <div className="dashboard">
@@ -99,8 +112,8 @@ export function Dashboard({ currentPhase, hwReport }: DashboardProps) {
 
         <div className="content-body">
           {currentView === 'overview' && <OverviewView currentPhase={currentPhase} />}
-          {currentView === 'services' && <Services />}
-          {currentView === 'eligibility' && <Eligibility />}
+          {currentView === 'services' && <Services onCheckEligibility={navigateToEligibility} />}
+          {currentView === 'eligibility' && <Eligibility preSelectedService={preSelectedServiceForEligibility} />}
           {currentView === 'documents' && <DocumentsView />}
           {currentView === 'tracker' && <TrackerView />}
           {currentView === 'settings' && <SettingsView />}
@@ -201,33 +214,186 @@ function OverviewView({ currentPhase }: { currentPhase: Phase }) {
 }
 
 function DocumentsView() {
+  const [selectedService, setSelectedService] = useState<string>('');
+  
+  const service = selectedService ? getServiceById(selectedService) : null;
+  const requirements = selectedService ? getDocumentRequirementsForService(selectedService) : null;
+  
   return (
     <div className="documents">
-      <h2>Document Validation</h2>
-      <p className="subtitle">Pre-check your documents before submitting to the portal</p>
-      <div className="placeholder">
-        <p>📄 Document validation coming soon...</p>
-        <p className="help-text">
-          Upload scanned copies of your certificates to check for quality issues,
-          missing fields, and validation errors before submission.
-        </p>
+      <h2>Document Requirements</h2>
+      <p className="subtitle">View required documents for each service</p>
+      
+      <div className="service-selector">
+        <label><strong>Select Service:</strong></label>
+        <select 
+          value={selectedService} 
+          onChange={(e) => setSelectedService((e.target as HTMLSelectElement).value)}
+          className="service-select"
+        >
+          <option value="">-- Choose a service --</option>
+          {GOVERNMENT_SERVICES.map((svc) => (
+            <option key={svc.id} value={svc.id}>{svc.name}</option>
+          ))}
+        </select>
       </div>
+      
+      {service && !requirements && (
+        <div className="info-box">
+          <p>📋 Document requirements not yet available for {service.name}</p>
+          <p className="help-text">Check the service details for general document information.</p>
+        </div>
+      )}
+      
+      {requirements && (
+        <div className="requirements-container">
+          <div className="requirements-header">
+            <h3>{requirements.serviceName}</h3>
+            <p className="required-count">
+              {requirements.requiredDocuments.filter((d: any) => d.mandatory).length} required documents
+            </p>
+          </div>
+          
+          <div className="document-grid">
+            {requirements.requiredDocuments.map((doc) => (
+              <DocumentRequirementCard key={doc.type} requirement={doc} />
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {!selectedService && (
+        <div className="placeholder">
+          <p>👆 Select a service to view its document requirements</p>
+        </div>
+      )}
     </div>
   );
 }
 
 function TrackerView() {
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [selectedApplication, setSelectedApplication] = useState<string | null>(null);
+  
+  const overdueApps = getOverdueApplications();
+  
+  const filteredApps = MOCK_APPLICATIONS.filter((app) => {
+    if (filterStatus !== 'all' && app.currentStatus !== filterStatus) return false;
+    if (filterCategory !== 'all' && app.category !== filterCategory) return false;
+    return true;
+  });
+  
+  const categories = getAllCategories();
+  const selectedApp = selectedApplication 
+    ? MOCK_APPLICATIONS.find((app) => app.id === selectedApplication)
+    : null;
+  
   return (
     <div className="tracker">
       <h2>Application Tracker</h2>
-      <p className="subtitle">Monitor your application status and statutory deadlines</p>
-      <div className="placeholder">
-        <p>📍 Application tracking coming soon...</p>
-        <p className="help-text">
-          The browser extension will track your application status on the SSP portal
-          and alert you if processing deadlines are breached per the Sakala Act.
-        </p>
+      <p className="subtitle">Monitor application status and statutory deadlines</p>
+      
+      {/* Stats Summary */}
+      <div className="tracker-stats">
+        <div className="stat-card">
+          <div className="stat-number">{MOCK_APPLICATIONS.length}</div>
+          <div className="stat-label">Total Applications</div>
+        </div>
+        <div className="stat-card warning">
+          <div className="stat-number">{overdueApps.length}</div>
+          <div className="stat-label">Overdue</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">
+            {MOCK_APPLICATIONS.filter((a) => a.currentStatus === 'approved').length}
+          </div>
+          <div className="stat-label">Approved</div>
+        </div>
       </div>
+      
+      {/* Filters */}
+      <div className="tracker-filters">
+        <div className="filter-group">
+          <label>Filter by Status:</label>
+          <select 
+            value={filterStatus} 
+            onChange={(e) => setFilterStatus((e.target as HTMLSelectElement).value)}
+          >
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="under_review">Under Review</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="document_required">Document Required</option>
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label>Filter by Category:</label>
+          <select 
+            value={filterCategory} 
+            onChange={(e) => setFilterCategory((e.target as HTMLSelectElement).value)}
+          >
+            <option value="all">All Categories</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+        
+        {(filterStatus !== 'all' || filterCategory !== 'all') && (
+          <button 
+            className="btn-secondary btn-sm"
+            onClick={() => {
+              setFilterStatus('all');
+              setFilterCategory('all');
+            }}
+          >
+            Clear Filters
+          </button>
+        )}
+      </div>
+      
+      {/* Application List */}
+      <div className="application-list">
+        {filteredApps.length === 0 && (
+          <div className="no-results">
+            <p>No applications match the selected filters</p>
+          </div>
+        )}
+        
+        {filteredApps.map((app) => (
+          <ApplicationCard 
+            key={app.id} 
+            application={app}
+            onViewDetails={() => setSelectedApplication(app.id)}
+          />
+        ))}
+      </div>
+      
+      {/* Status Timeline Modal */}
+      {selectedApp && (
+        <div className="modal-overlay" onClick={() => setSelectedApplication(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{selectedApp.serviceName}</h3>
+              <button 
+                className="modal-close"
+                onClick={() => setSelectedApplication(null)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <StatusTimeline 
+                history={selectedApp.statusHistory}
+                currentStage={selectedApp.currentStage}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
